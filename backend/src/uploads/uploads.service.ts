@@ -20,14 +20,7 @@ export class UploadsService {
 
   async uploadFile(file: Express.Multer.File) {
     // Mock upload if constraints are missing for dev
-    if (!process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID === 'AKIA...') {
-      console.warn('AWS Credentials missing. Returning real placeholder for testing.');
-      // Using a real square logo placeholder so the 3D texture actually loads
-      return {
-        url: `https://picsum.photos/seed/${Date.now()}/512`,
-        key: `mock-${Date.now()}.png`
-      };
-    }
+    // Real S3 Upload Only
 
     try {
       const key = `${Date.now()}-${file.originalname}`;

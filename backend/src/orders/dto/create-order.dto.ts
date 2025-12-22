@@ -32,7 +32,18 @@ export class CreateOrderDto {
     totalAmount: number;
 
     @IsString()
-    shippingAddressId: string;
+    @IsOptional()
+    shippingAddressId?: string;
+
+    @IsObject()
+    @IsOptional()
+    shippingAddress?: {
+        street: string;
+        city?: string;
+        state?: string;
+        zip?: string;
+        country?: string;
+    };
 
     @IsArray()
     @ValidateNested({ each: true })

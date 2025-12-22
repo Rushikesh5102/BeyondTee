@@ -1,0 +1,19 @@
+node_modules
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+
+# Build outputs
+dist
+.next
+out
+build
+
+# Project specific
+backend/dist
+backend/generated
+web/.next
+web/build
+web/out

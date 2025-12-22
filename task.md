@@ -4,6 +4,7 @@
 - [x] **Restore Database Connectivity**: Switched to local SQLite for immediate functionality.
 - [x] **Fix Shop Page**: Products now fetch correctly from SQLite catalog.
 - [x] **Fix Profile Page**: Orders now fetch correctly from SQLite catalog.
+- [x] **Fix Checkout Regression**: Resolve 400 Bad Request during Order Creation (Address/User mismatch).
 - [x] **Fix Order Creation Bug**: Resolved 500 Error by handling SQLite constraints and fixing Frontend payload.
 - [x] **Seed Catalog**: Populated store with official product list.
 

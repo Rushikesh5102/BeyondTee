@@ -24,6 +24,30 @@ export class CreateProductDto {
     @IsOptional()
     stock?: number;
 
+    @IsString()
+    @IsOptional()
+    gender?: string;
+
+    @IsString()
+    @IsOptional()
+    collection?: string;
+
+    @IsString()
+    @IsOptional()
+    fit?: string;
+
+    @IsBoolean()
+    @IsOptional()
+    isFeatured?: boolean;
+
+    @IsString()
+    @IsOptional()
+    fabricDetails?: string;
+
+    @IsString()
+    @IsOptional()
+    careInstructions?: string;
+
     @IsBoolean()
     @IsOptional()
     isCustomizable?: boolean;

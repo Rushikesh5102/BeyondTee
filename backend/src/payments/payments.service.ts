@@ -12,6 +12,10 @@ export class PaymentsService {
   }
 
   async createIntent(amount: number, originalOrderId: string) {
+    // Mock for Dev/Test if no real key provided
+    // Real Implementation Only
+
+
     try {
       const paymentIntent = await this.stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to paisa for INR

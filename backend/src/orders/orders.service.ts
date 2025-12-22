@@ -24,17 +24,34 @@ export class OrdersService {
         }
 
         // 2. Create Shipping Address
-        // Check if sending ID, if so, ignore create. But for now creating simpler logic.
-        const address = await tx.address.create({
-          data: {
-            street: "123 Test St",
-            city: "Mumbai",
-            state: "MH",
-            zip: "400001",
-            country: "India",
-            userId: user.id
-          }
-        });
+        let addressId = createOrderDto.shippingAddressId;
+
+        if (createOrderDto.shippingAddress) {
+          const newAddress = await tx.address.create({
+            data: {
+              street: createOrderDto.shippingAddress.street,
+              city: createOrderDto.shippingAddress.city || "Mumbai",
+              state: createOrderDto.shippingAddress.state || "MH",
+              zip: createOrderDto.shippingAddress.zip || "400001",
+              country: createOrderDto.shippingAddress.country || "India",
+              userId: user.id
+            }
+          });
+          addressId = newAddress.id;
+        } else if (!addressId) {
+          // Fallback if neither ID nor Object provided (Backwards compat / Hard fallback)
+          const fallbackAddr = await tx.address.create({
+            data: {
+              street: "123 Test St",
+              city: "Mumbai",
+              state: "MH",
+              zip: "400001",
+              country: "India",
+              userId: user.id
+            }
+          });
+          addressId = fallbackAddr.id;
+        }
 
         // 3. Prepare Order Items
         const orderItemsData = await Promise.all(
@@ -68,7 +85,7 @@ export class OrdersService {
           data: {
             userId: user.id,
             totalAmount: createOrderDto.totalAmount,
-            shippingAddressId: address.id,
+            shippingAddressId: addressId,
             items: {
               create: orderItemsData
             }
@@ -85,6 +102,34 @@ export class OrdersService {
     }
   }
 
+  async getStats() {
+    const totalOrders = await this.prisma.order.count();
+    const totalRevenueAgg = await this.prisma.order.aggregate({
+      _sum: { totalAmount: true }
+    });
+    const totalRevenue = totalRevenueAgg._sum.totalAmount || 0;
+
+    const recentOrders = await this.prisma.order.findMany({
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      include: { user: true }
+    });
+
+    // Low stock products
+    const lowStockProducts = await this.prisma.product.findMany({
+      where: { stock: { lt: 10 } },
+      take: 5,
+      select: { id: true, name: true, stock: true }
+    });
+
+    return {
+      totalOrders,
+      totalRevenue,
+      recentOrders,
+      lowStockProducts
+    };
+  }
+
   async findAll() {
     const orders = await this.prisma.order.findMany({
       include: {
@@ -95,25 +140,17 @@ export class OrdersService {
           },
         },
         user: true,
+        shippingAddress: true,
       },
+      orderBy: { createdAt: 'desc' }
     });
 
-    return orders.map(order => ({
-      ...order,
-      items: order.items.map(item => ({
-        ...item,
-        customizationData: item.customizationData ? JSON.parse(item.customizationData as string) : null,
-        design: item.design ? {
-          ...item.design,
-          configuration: item.design.configuration ? JSON.parse(item.design.configuration as string) : null
-        } : null
-      }))
-    }));
+    return orders.map(order => this.transformOrder(order));
   }
 
-  async findOne(id: string) {
-    const order = await this.prisma.order.findUnique({
-      where: { id },
+  async findMyOrders(userId: string) {
+    const orders = await this.prisma.order.findMany({
+      where: { userId },
       include: {
         items: {
           include: {
@@ -121,11 +158,15 @@ export class OrdersService {
             design: true,
           },
         },
+        shippingAddress: true,
       },
+      orderBy: { createdAt: 'desc' }
     });
 
-    if (!order) return null;
+    return orders.map(order => this.transformOrder(order));
+  }
 
+  private transformOrder(order: any) {
     return {
       ...order,
       items: order.items.map(item => ({
@@ -137,6 +178,25 @@ export class OrdersService {
         } : null
       }))
     };
+  }
+
+  async findOne(id: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: {
+        shippingAddress: true,
+        items: {
+          include: {
+            product: true,
+            design: true,
+          },
+        },
+      },
+    });
+
+    if (!order) return null;
+
+    return this.transformOrder(order);
   }
 
   update(id: string, updateOrderDto: UpdateOrderDto) {
