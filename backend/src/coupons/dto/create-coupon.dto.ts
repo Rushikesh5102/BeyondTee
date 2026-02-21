@@ -1,20 +1,27 @@
-import { IsString, IsNumber, IsEnum, IsBoolean, IsOptional, IsDateString } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsBoolean,
+  IsOptional,
+  IsDateString,
+} from 'class-validator';
 
 export class CreateCouponDto {
-    @IsString()
-    code: string;
+  @IsString()
+  code: string;
 
-    @IsNumber()
-    discount: number;
+  @IsNumber()
+  discount: number;
 
-    @IsEnum(['PERCENTAGE', 'FIXED'])
-    type: 'PERCENTAGE' | 'FIXED';
+  @IsEnum(['PERCENTAGE', 'FIXED'])
+  type: 'PERCENTAGE' | 'FIXED';
 
-    @IsOptional()
-    @IsBoolean()
-    isActive?: boolean;
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 
-    @IsOptional()
-    @IsDateString()
-    expiresAt?: string;
+  @IsOptional()
+  @IsDateString()
+  expiresAt?: string;
 }

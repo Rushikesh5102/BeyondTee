@@ -5,20 +5,20 @@ import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createProductDto: any) {
     return this.prisma.product.create({
       data: {
         ...createProductDto,
         images: JSON.stringify(createProductDto.images || []),
-      } as any,
+      },
     });
   }
 
   async findAll() {
     const products = await this.prisma.product.findMany();
-    return products.map(p => ({
+    return products.map((p) => ({
       ...p,
       images: JSON.parse((p.images as unknown as string) || '[]'),
     }));
@@ -44,7 +44,7 @@ export class ProductsService {
     }
     return this.prisma.product.update({
       where: { id },
-      data: data as any,
+      data: data,
     });
   }
 

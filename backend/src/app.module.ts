@@ -9,10 +9,21 @@ import { AuthModule } from './auth/auth.module';
 import { PaymentsModule } from './payments/payments.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { CouponsModule } from './coupons/coupons.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
-  imports: [PrismaModule, ProductsModule, OrdersModule, UsersModule, AuthModule, PaymentsModule, UploadsModule, CouponsModule],
+  imports: [
+    PrismaModule,
+    ProductsModule,
+    OrdersModule,
+    UsersModule,
+    AuthModule,
+    PaymentsModule,
+    UploadsModule,
+    CouponsModule,
+    EmailModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

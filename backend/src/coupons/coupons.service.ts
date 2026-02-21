@@ -5,8 +5,7 @@ import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class CouponsService {
-
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   create(createCouponDto: CreateCouponDto) {
     return this.prisma.coupon.create({
@@ -37,5 +36,25 @@ export class CouponsService {
     return this.prisma.coupon.delete({
       where: { id },
     });
+  }
+
+  async validate(code: string) {
+    const coupon = await this.prisma.coupon.findFirst({
+      where: {
+        code: code.toUpperCase(),
+        isActive: true,
+      },
+    });
+
+    if (!coupon) {
+      throw new Error('Invalid or inactive coupon');
+    }
+
+    // Check expiry
+    if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) {
+      throw new Error('Coupon has expired');
+    }
+
+    return coupon;
   }
 }

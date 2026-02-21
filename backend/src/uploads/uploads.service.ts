@@ -1,50 +1,51 @@
-import { Injectable } from '@nestjs/common';
-import { S3Client } from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { v2 as cloudinary } from 'cloudinary';
+const toStream = require('buffer-to-stream');
 import { Express } from 'express';
 
 @Injectable()
 export class UploadsService {
-  private s3Client: S3Client;
-  private bucketName = process.env.AWS_BUCKET_NAME;
-
   constructor() {
-    this.s3Client = new S3Client({
-      region: process.env.AWS_REGION || 'us-east-1',
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-      },
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
     });
   }
 
   async uploadFile(file: Express.Multer.File) {
-    // Mock upload if constraints are missing for dev
-    // Real S3 Upload Only
-
-    try {
-      const key = `${Date.now()}-${file.originalname}`;
-
-      const upload = new Upload({
-        client: this.s3Client,
-        params: {
-          Bucket: this.bucketName,
-          Key: key,
-          Body: file.buffer,
-          ContentType: file.mimetype,
-          ACL: 'public-read', // Ensure bucket policy allows this or use presigned URLs
-        },
-      });
-
-      await upload.done();
-
+    if (!process.env.CLOUDINARY_CLOUD_NAME) {
+      // Mock upload for local testing if Cloudinary is not configured
+      console.log('Using Mock Upload (Cloudinary Not Configured)');
       return {
-        url: `https://${this.bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`,
-        key: key,
+        url: 'https://via.placeholder.com/800x800.png?text=Mock+Upload',
+        key: `mock-${Date.now()}`,
       };
-    } catch (e) {
-      console.error('S3 Upload Error', e);
-      throw new Error('File upload failed');
     }
+
+    return new Promise((resolve, reject) => {
+      const upload = cloudinary.uploader.upload_stream(
+        { folder: 'beyondtee_designs' },
+        (error, result) => {
+          if (error) {
+            console.error('Cloudinary Upload Error:', error);
+            return reject(new BadRequestException('Failed to upload image'));
+          }
+          if (result) {
+            resolve({
+              url: result.secure_url,
+              key: result.public_id,
+            });
+          } else {
+            reject(
+              new BadRequestException('Failed to upload image - No result'),
+            );
+          }
+        },
+      );
+
+      // Convert buffer to stream and pipe it to cloudinary
+      toStream(file.buffer).pipe(upload);
+    });
   }
 }

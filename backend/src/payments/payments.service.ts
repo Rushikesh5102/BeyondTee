@@ -1,42 +1,50 @@
-import { Injectable } from '@nestjs/common';
-import Stripe from 'stripe';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import Razorpay from 'razorpay';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class PaymentsService {
-  private stripe: Stripe;
+  private razorpay: Razorpay;
 
   constructor() {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_mock', {
-      apiVersion: '2025-12-15.clover',
+    this.razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+      key_secret: process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder',
     });
   }
 
-  async createIntent(amount: number, originalOrderId: string) {
-    // Mock for Dev/Test if no real key provided
-    // Real Implementation Only
-
-
+  async createOrder(amount: number, receiptId: string) {
     try {
-      const paymentIntent = await this.stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to paisa for INR
-        currency: 'inr',
-        metadata: {
-          orderId: originalOrderId,
-        },
-        automatic_payment_methods: {
-          enabled: true,
-        },
-      });
-
-      return {
-        status: 'success',
-        clientSecret: paymentIntent.client_secret,
-        amount,
-        currency: 'inr',
+      const options = {
+        amount: Math.round(amount * 100), // Amount in paisa
+        currency: 'INR',
+        receipt: receiptId,
       };
+
+      const order = await this.razorpay.orders.create(options);
+      return order;
     } catch (error) {
-      console.error('Stripe Error:', error);
-      throw error;
+      console.error('Razorpay Create Order Error:', error);
+      throw new BadRequestException('Failed to create Razorpay order');
+    }
+  }
+
+  verifyPayment(
+    razorpayOrderId: string,
+    razorpayPaymentId: string,
+    signature: string,
+  ) {
+    const keySecret = process.env.RAZORPAY_KEY_SECRET || 'secret_placeholder';
+
+    const generatedSignature = crypto
+      .createHmac('sha256', keySecret)
+      .update(razorpayOrderId + '|' + razorpayPaymentId)
+      .digest('hex');
+
+    if (generatedSignature === signature) {
+      return { status: 'success', message: 'Payment verified' };
+    } else {
+      throw new BadRequestException('Invalid payment signature');
     }
   }
 }

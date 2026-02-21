@@ -6,13 +6,18 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService
-  ) { }
+    private jwtService: JwtService,
+  ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
     // FALLBACK ADMIN for MVP
     if (username === 'admin' && pass === 'admin') {
-      return { id: 'admin-id', email: 'admin@beyondtee.com', role: 'ADMIN', name: 'Admin User' };
+      return {
+        id: 'admin-id',
+        email: 'admin@beyondtee.com',
+        role: 'ADMIN',
+        name: 'Admin User',
+      };
     }
 
     // Real DB Check

@@ -21,6 +21,13 @@
 - [x] **Stripe Currency Update**: Backend localized to INR.
 - [x] **Final Stripe Validation**: All payment intents now use `inr`.
 - [x] **Enhanced Landing Page & Navbar**: Implemented glassmorphism, animations, and premium typography.
+- [x] **Admin Stability Sweep**: Fixed `JSON.parse` crashes and ID mismatches in Admin Dashboard, Products, and Orders.
+- [x] **Premium Product Assets**: Replaced silhouette placeholders with high-quality AI-generated product photography.
+- [x] **Admin Security**: Implemented client-side role-based authorization for the entire admin layout.
+- [x] **Promo Code System**: Implemented backend coupon validation and checkout calculation logic.
+- [x] **Mock Payment Security**: Resolved 401 Unauthorized errors in mock payment flow.
+- [x] **Admin Analytics**: Fixed Statistics fetching and visualization.
+- [x] **Legal Framework**: Populated Terms, Privacy, and Shipping pages with professional content.
 
 ## 🚀 Deployment Readiness
 - [x] **Frontend Dockerization**: Optimized `standalone` build content.

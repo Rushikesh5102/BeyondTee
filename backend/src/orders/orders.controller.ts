@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -8,7 +18,7 @@ import { Roles } from '../auth/roles.decorator';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
@@ -17,6 +27,7 @@ export class OrdersController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
+  @Get('stats')
   getStats() {
     return this.ordersService.getStats();
   }
@@ -34,7 +45,7 @@ export class OrdersController {
     return this.ordersService.findAll();
   }
 
-  @Get(':id') // Allow user to fetch own order? Or Protected? For now, public to allow simple tracking.
+  @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ordersService.findOne(id);
   }
@@ -53,4 +64,3 @@ export class OrdersController {
     return this.ordersService.remove(id);
   }
 }
-

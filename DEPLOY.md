@@ -7,11 +7,22 @@ This project is containerized and ready for deployment. You have two primary ser
 To run the full production stack locally using Docker Compose:
 
 1. **Ensure Docker is running.**
-2. **Run the production compose file:**
+2. **Prepare the Database Schema:**
+   > [!IMPORTANT]
+   > For production (Docker/Cloud), you **MUST** update `backend/prisma/schema.prisma` to use PostgreSQL instead of SQLite.
+   
+   Change this:
+   ```prisma
+   datasource db {
+     provider = "sqlite" // Change to "postgresql"
+     url      = env("DATABASE_URL")
+   }
+   ```
+3. **Run the production compose file:**
    ```bash
    docker-compose -f docker-compose.prod.yml up --build -d
    ```
-3. **Access the App:**
+4. **Access the App:**
    - Frontend: [http://localhost:3000](http://localhost:3000)
    - Backend: [http://localhost:3001](http://localhost:3001)
 
@@ -40,3 +51,8 @@ Ensure these variables are set in your production environment:
 **Frontend:**
 *   `NEXT_PUBLIC_API_URL`: Full URL to your production backend.
 *   `NEXTAUTH_SECRET`: A random string for session security.
+
+## 📋 Pre-Deployment Checklist
+- [ ] **Prisma Provider**: Switched `schema.prisma` to `postgresql`.
+- [ ] **Environment Secrets**: All keys (Stripe, AWS) are set in the cloud provider.
+- [ ] **Build Check**: storage confirmed `npm run build` passes for both `web` and `backend`.
