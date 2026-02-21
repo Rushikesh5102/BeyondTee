@@ -59,7 +59,8 @@ export class CouponsController {
     try {
       return await this.couponsService.validate(code);
     } catch (e) {
-      return { success: false, message: e.message };
+      const error = e as Error;
+      return { success: false, message: error.message };
     }
   }
 }

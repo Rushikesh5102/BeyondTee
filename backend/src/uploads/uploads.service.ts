@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
-const toStream = require('buffer-to-stream');
+import toStream from 'buffer-to-stream';
 import { Express } from 'express';
 
 @Injectable()
@@ -45,6 +45,7 @@ export class UploadsService {
       );
 
       // Convert buffer to stream and pipe it to cloudinary
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       toStream(file.buffer).pipe(upload);
     });
   }

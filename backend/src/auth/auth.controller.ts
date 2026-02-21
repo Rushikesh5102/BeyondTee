@@ -14,7 +14,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async signIn(@Body() signInDto: Record<string, any>) {
+  async signIn(@Body() signInDto: Record<string, string>) {
     const user = await this.authService.validateUser(
       signInDto.username,
       signInDto.password,

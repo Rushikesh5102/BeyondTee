@@ -7,12 +7,14 @@ import { PrismaService } from '../prisma.service';
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createProductDto: any) {
+  async create(createProductDto: CreateProductDto) {
+    const data = {
+      ...createProductDto,
+      images: JSON.stringify(createProductDto.images || []),
+    };
     return this.prisma.product.create({
-      data: {
-        ...createProductDto,
-        images: JSON.stringify(createProductDto.images || []),
-      },
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      data: data as any,
     });
   }
 
@@ -20,7 +22,7 @@ export class ProductsService {
     const products = await this.prisma.product.findMany();
     return products.map((p) => ({
       ...p,
-      images: JSON.parse((p.images as unknown as string) || '[]'),
+      images: JSON.parse((p.images as unknown as string) || '[]') as string[],
     }));
   }
 
@@ -31,20 +33,23 @@ export class ProductsService {
     if (product) {
       return {
         ...product,
-        images: JSON.parse((product.images as unknown as string) || '[]'),
+        images: JSON.parse(
+          (product.images as unknown as string) || '[]',
+        ) as string[],
       };
     }
     return null;
   }
 
-  update(id: string, updateProductDto: any) {
-    const data = { ...updateProductDto };
+  update(id: string, updateProductDto: UpdateProductDto) {
+    const data = { ...updateProductDto } as Record<string, any>;
     if (data.images) {
       data.images = JSON.stringify(data.images);
     }
     return this.prisma.product.update({
       where: { id },
-      data: data,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      data: data as any,
     });
   }
 

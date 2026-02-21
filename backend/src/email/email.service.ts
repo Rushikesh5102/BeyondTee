@@ -9,7 +9,7 @@ export class EmailService {
     email: string,
     orderId: string,
     totalAmount: number,
-    items: any[],
+    items: { quantity: number; productId: string; size?: string }[],
   ) {
     try {
       await this.mailerService.sendMail({
