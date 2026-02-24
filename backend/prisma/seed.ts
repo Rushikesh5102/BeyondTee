@@ -170,6 +170,22 @@ async function main() {
             console.log(`Admin ${adminEmail} already exists. Skipping.`);
         }
 
+        const ownerEmail = 'Pattiwarrushikesh5102@gmail.com';
+        const existingOwner = await prisma.user.findUnique({ where: { email: ownerEmail } });
+        if (!existingOwner) {
+            const owner = await prisma.user.create({
+                data: {
+                    email: ownerEmail,
+                    name: 'Owner User',
+                    password: 'Rushikesh@5102',
+                    role: 'ADMIN', // The schema only defines "USER" or "ADMIN"
+                },
+            });
+            console.log(`Created owner: ${owner.email}`);
+        } else {
+            console.log(`Owner ${ownerEmail} already exists. Skipping.`);
+        }
+
         console.log('Seeding complete.');
     } catch (e) {
         console.error('Error during seeding logic:', e);

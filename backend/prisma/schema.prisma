@@ -8,118 +8,101 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String    @id @default(uuid())
+  email     String    @unique
   password  String
   name      String?
-  role      String   @default("USER") // "USER" or "ADMIN"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Relationships
-  orders    Order[]
+  role      String    @default("USER")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   addresses Address[]
   designs   Design[]
+  orders    Order[]
 }
 
 model Product {
-  id               String   @id @default(uuid())
+  id               String      @id @default(uuid())
   name             String
   description      String
   price            Float
-  sku              String   @unique
+  sku              String      @unique
   stock            Int
-  category         String   // e.g., "T-Shirt", "Hoodie"
-  
-  // New Fields
-  gender           String   @default("UNISEX") // MEN, WOMEN, UNISEX
-  collection       String?  // e.g., "Streetwear", "Anime"
-  fit              String?  // "Normal", "Oversized"
-  isFeatured       Boolean  @default(false)
+  category         String
+  gender           String      @default("UNISEX")
+  collection       String?
+  fit              String?
+  isFeatured       Boolean     @default(false)
   fabricDetails    String?
   careInstructions String?
-  
   images           String
   modelPath        String?
-  isCustomizable   Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  
-  // Relationships
-  orderItems     OrderItem[]
+  isCustomizable   Boolean     @default(false)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  orderItems       OrderItem[]
 }
 
 model Coupon {
-  id        String   @id @default(uuid())
-  code      String   @unique
-  discount  Float    // Percentage or Fixed amount
-  type      String   @default("PERCENTAGE") // PERCENTAGE or FIXED
-  isActive  Boolean  @default(true)
+  id        String    @id @default(uuid())
+  code      String    @unique
+  discount  Float
+  type      String    @default("PERCENTAGE")
+  isActive  Boolean   @default(true)
   expiresAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Address {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
   street    String
   city      String
   state     String
   zip       String
   country   String
-  isDefault Boolean  @default(false)
-  
-  // Relationships
+  isDefault Boolean @default(false)
+  user      User    @relation(fields: [userId], references: [id])
   orders    Order[]
 }
 
 model Design {
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
   userId        String
-  user          User     @relation(fields: [userId], references: [id])
   name          String
-  configuration String     // The 3D config
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // Relationships
+  configuration String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          User        @relation(fields: [userId], references: [id])
   orderItems    OrderItem[]
 }
 
 model Order {
   id                String      @id @default(uuid())
   userId            String
-  user              User        @relation(fields: [userId], references: [id])
   totalAmount       Float
   status            String      @default("PENDING")
-  
   shippingAddressId String
-  shippingAddress   Address     @relation(fields: [shippingAddressId], references: [id])
-  
   paymentIntentId   String?
   couponCode        String?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
+  shippingAddress   Address     @relation(fields: [shippingAddressId], references: [id])
+  user              User        @relation(fields: [userId], references: [id])
   items             OrderItem[]
 }
 
 model OrderItem {
-  id              String  @id @default(uuid())
-  orderId         String
-  order           Order   @relation(fields: [orderId], references: [id])
-  productId       String
-  product         Product @relation(fields: [productId], references: [id])
-  quantity        Int
-  price           Float
-  
-  // Customization
-  size            String?
-  color           String?
-  
-  designId        String?
-  design          Design? @relation(fields: [designId], references: [id])
-  
-  customizationData String? // Redundant if linking to Design, but kept for snapshot if needed
+  id                String  @id @default(uuid())
+  orderId           String
+  productId         String
+  quantity          Int
+  price             Float
+  size              String?
+  color             String?
+  designId          String?
+  customizationData String?
+  design            Design? @relation(fields: [designId], references: [id])
+  order             Order   @relation(fields: [orderId], references: [id])
+  product           Product @relation(fields: [productId], references: [id])
 }

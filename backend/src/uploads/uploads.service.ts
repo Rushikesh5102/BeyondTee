@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { v2 as cloudinary } from 'cloudinary';
-import toStream from 'buffer-to-stream';
+import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
+import * as streamifier from 'streamifier';
 import { Express } from 'express';
 
 @Injectable()
@@ -24,9 +24,9 @@ export class UploadsService {
     }
 
     return new Promise((resolve, reject) => {
-      const upload = cloudinary.uploader.upload_stream(
+      const uploadStream = cloudinary.uploader.upload_stream(
         { folder: 'beyondtee_designs' },
-        (error, result) => {
+        (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
           if (error) {
             console.error('Cloudinary Upload Error:', error);
             return reject(new BadRequestException('Failed to upload image'));
@@ -44,9 +44,8 @@ export class UploadsService {
         },
       );
 
-      // Convert buffer to stream and pipe it to cloudinary
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      toStream(file.buffer).pipe(upload);
+      // Robust stream conversion
+      streamifier.createReadStream(file.buffer).pipe(uploadStream);
     });
   }
 }
