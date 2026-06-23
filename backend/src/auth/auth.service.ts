@@ -12,10 +12,12 @@ export interface AuthUser {
 
 @Injectable()
 export class AuthService {
+  private otps = new Map<string, { code: string; expiresAt: number }>();
+
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateUser(username: string, pass: string): Promise<AuthUser | null> {
     // FALLBACK ADMIN for MVP
@@ -44,5 +46,37 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
       ...user,
     };
+  }
+
+  async sendOtp(phoneNumber: string): Promise<boolean> {
+    // Generate 6 digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Store with 5 min expiry
+    this.otps.set(phoneNumber, {
+      code,
+      expiresAt: Date.now() + 5 * 60 * 1000
+    });
+
+    // In production, integrate Twilio/SNS here
+    console.log(`[MOCK SMS] Sending OTP ${code} to mobile: ${phoneNumber}`);
+    return true;
+  }
+
+  async verifyOtp(phoneNumber: string, code: string): Promise<boolean> {
+    const record = this.otps.get(phoneNumber);
+    if (!record) return false;
+
+    if (Date.now() > record.expiresAt) {
+      this.otps.delete(phoneNumber);
+      return false; // Expired
+    }
+
+    if (record.code === code) {
+      this.otps.delete(phoneNumber);
+      return true;
+    }
+
+    return false;
   }
 }

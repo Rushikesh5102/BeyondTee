@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   create(createUserDto: CreateUserDto) {
     return this.prisma.user.create({
@@ -13,6 +13,9 @@ export class UsersService {
         email: createUserDto.email,
         password: createUserDto.password, // Should hash this in real app
         name: createUserDto.name,
+        phoneNumber: createUserDto.phoneNumber,
+        isPhoneVerified: createUserDto.isPhoneVerified || false,
+        preferences: createUserDto.preferences,
         role: 'USER',
       },
     });

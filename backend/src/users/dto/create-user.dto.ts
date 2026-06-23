@@ -10,4 +10,14 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   name?: string;
+
+  @IsString()
+  @IsOptional()
+  phoneNumber?: string;
+
+  @IsOptional()
+  isPhoneVerified?: boolean;
+
+  @IsOptional()
+  preferences?: string;
 }

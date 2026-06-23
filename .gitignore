@@ -4,16 +4,29 @@ node_modules
 .env
 .env.*
 !.env.example
+*.db
 
 # Build outputs
 dist
 .next
 out
 build
+.vercel
+*.tsbuildinfo
+next-env.d.ts
 
 # Project specific
 backend/dist
 backend/generated
+backend/seed_output.txt
+backend/upload*.log
+backend/test-output.log
 web/.next
 web/build
 web/out
+web/build.log
+web/lint-results.txt
+
+# Heavy asset folders (local only)
+web/src/Designs For Tshirts and hoodies/
+
