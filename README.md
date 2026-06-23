@@ -11,7 +11,7 @@
 
 **BeyondTee** is a premium, production-ready full-stack e-commerce solution that empowers users to customize casual wear (T-shirts, hoodies, and more) in an immersive, real-time 3D editor. Built with a robust monorepo architecture leveraging Next.js, NestJS, and Three.js.
 
-[✨ Live Preview](https://yourdomain.in) | [🎬 Watch Demo Video](https://github.com/Rushikesh5102/BeyondTee/raw/main/docs/demo.mp4) | [🚀 Deployment Guide](#-deployment--hosting)
+[🚀 Deployment Guide](#-deployment--hosting)
 <!-- Note: Replace the Live Preview link with your deployed VPS domain URL, and the Watch Demo Video link with your hosted video link (or upload demo.mp4 to docs/ and commit it) -->
 
 </div>
